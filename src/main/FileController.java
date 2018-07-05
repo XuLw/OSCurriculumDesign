@@ -15,7 +15,6 @@ import bean.SuperBlock;
 public class FileController {
 
 	private static SuperBlock mSuperBlock;
-	private static ArrayList<Block> mBlocks;
 
 	private static File file = new File(Constant.FILE_PATH);;
 
@@ -26,8 +25,6 @@ public class FileController {
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			// ¶ÁÈ¡³¬¼¶¿é
 			mSuperBlock = (SuperBlock) ois.readObject();
-			// ¶ÁÈ¡¿é
-			mBlocks = (ArrayList<Block>) ois.readObject();
 			ois.close();
 			fis.close();
 
@@ -48,7 +45,6 @@ public class FileController {
 			FileOutputStream fos = new FileOutputStream(file);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(mSuperBlock);
-			oos.writeObject(mBlocks);
 			oos.close();
 			fos.close();
 		} catch (FileNotFoundException e) {
@@ -65,9 +61,6 @@ public class FileController {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			mSuperBlock = new SuperBlock();
 			oos.writeObject(mSuperBlock);
-			mBlocks = new ArrayList<>(1024);
-			System.out.println(mBlocks.size());
-			oos.writeObject(mBlocks);
 			oos.close();
 			fos.close();
 		} catch (FileNotFoundException e) {
@@ -81,9 +74,7 @@ public class FileController {
 		return mSuperBlock;
 	}
 
-	public ArrayList<Block> getBlocks() {
-		return this.mBlocks;
-	}
+
 
 	public static void main(String[] args) {
 		new FileController();

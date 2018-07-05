@@ -24,6 +24,18 @@ public class FileManager {
 		return state;
 	}
 
+	public static int openFile(String filePath) {
+		int state = INIT;
+		Record r = FileController.getSuperBlock().getRecordById(filePath);
+		if (r == null) {
+			// 文件不存在
+			System.out.println("file not exists!");
+		} else {
+			new TextEdit(FileController.getSuperBlock().getContentByBlockIds(r.getBlockId()), filePath);
+		}
+		return state;
+	}
+
 	public static int makeDir(String filePath) {
 		int state = INIT;
 		if (!FileController.getSuperBlock().fileExists(filePath)) {
@@ -52,6 +64,16 @@ public class FileManager {
 				System.out.println(r + "   " + "<d>");
 			}
 		}
+	}
+
+	public static int cdDir(String path) {
+		System.out.println(path);
+		int state = INIT;
+		// 判断是不是目录文件
+		if (FileController.getSuperBlock().fileExists(path)) {
+			state = OK;
+		}
+		return state;
 	}
 
 	public static void main(String[] args) {

@@ -6,7 +6,10 @@ import java.util.Scanner;
 public class Test {
 	public static void main(String[] args) {
 		String s = "xulw/";
-		String s1 = s.substring(s.length());
-		System.out.println(s1);
+		switch (s) {
+		case "xulw/":
+			System.out.println("ffff");
+			break;
+		}
 	}
 }

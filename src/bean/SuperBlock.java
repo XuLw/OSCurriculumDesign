@@ -10,12 +10,16 @@ public class SuperBlock implements Serializable {
 	private int length; // 超级快大小
 	private ArrayList<User> users; // 用户
 	private int[] bitmap;// 位视图
+	private int indexOfEmptyBlock; // 当前可用的空闲块
 	private ArrayList<Record> records;
+	private ArrayList<Block> blocks; // 所有的块
 
 	public SuperBlock() {
 		users = new ArrayList<>();
 		bitmap = new int[Constant.SYSTEM_SIZE];
 		records = new ArrayList<>();
+		blocks = new ArrayList<>(1024);
+		indexOfEmptyBlock = 0; // 默认从第一个块开始放
 	}
 
 	// 添加用户
@@ -69,6 +73,28 @@ public class SuperBlock implements Serializable {
 		return files;
 	}
 
+	// 通过Id获取文件记录
+	public Record getRecordById(String id) {
+		for (Record r : records) {
+			if (r.getId().equals(id))
+				return r;
+		}
+		return null;
+	}
+
+	// 通过块id获取快内容
+	public String getContentByBlockIds(int[] ids) {
+		StringBuilder content = new StringBuilder();
+		for (int i = 0; i < ids.length; i++) {
+			if (ids[i] == -1) {
+				// 已经结束了
+			} else {
+				content.append(blocks.get(ids[i]).getContent());
+			}
+		}
+		return content.toString();
+	}
+
 	public void printDetail() {
 		String allUser = "";
 		for (User u : users) {
@@ -82,10 +108,29 @@ public class SuperBlock implements Serializable {
 		System.out.println("user");
 		System.out.println(allUser);
 		System.out.println("bitmap");
-		System.out.println(bitmap);
-		System.out.println("record");
+		System.out.println(bitmap.toString());
+		System.out.println("record: " + records.size());
 		System.out.println(allRecords);
 		System.out.println("--------------------");
+	}
+
+	public Block getEmptyBlock() {
+		Block b = null;
+		
+			return b;
+	}
+
+	private int getEmptyId() {
+		if (indexOfEmptyBlock > 1023)
+			indexOfEmptyBlock = 0;
+		for (int i = indexOfEmptyBlock; i < 1023; i++) {
+			if (bitmap[i] == 0) {
+				// 是空
+				indexOfEmptyBlock++;
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public static void main(String[] args) {

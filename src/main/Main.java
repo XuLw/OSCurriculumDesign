@@ -9,8 +9,13 @@ import bean.User;
 import utils.StringUtils;
 
 public class Main {
-	Scanner input;
 
+	public static final int OK = 12;
+	public static final int FAILED = 13;
+	public static final int INIT = 10;
+	public static final int EXIT = -99;
+
+	Scanner input;
 	Login mLogin;
 	User currentUser;
 	int currentLevel;
@@ -23,20 +28,20 @@ public class Main {
 		FileController.readDataFromFile();
 
 		mLogin = new Login();
-		showLogin();
-		fileOper();
-		// System.out.println("register");
-		// System.out.println("login");
-		// System.out.println("exit");
-
+		if (showLogin() == this.OK)
+			fileOper();
+		FileController.writeDataToFile();
 	}
 
-	public void showLogin() {
+	public int showLogin() {
+		int state = INIT;
 		Help.showLoginHelp();
 		String command = "";
 		do {
 			command = getCommand(); // 获取命令
-			if (Constant.REGISTER.equals(command)) {
+
+			switch (command.toLowerCase()) {
+			case Constant.REGISTER:
 				// 新注册
 				if (mLogin.register() == Login.OK) {
 					// 注册成功
@@ -46,34 +51,44 @@ public class Main {
 					// 放弃注册
 
 				}
-
-			} else if (Constant.LOGIN.equals(command)) {
+				break;
+			case Constant.LOGIN:
 				// 登录
 				if (mLogin.login() == Login.OK) {
 					// 登录成功
 					currentUser = mLogin.getUser();
 					dirs.add(currentUser.getName());
 					System.out.println("登陆成功！");
-					break;
+					state = this.OK;
 				} else {
 					// 放弃登录
 				}
-
-			} else if (Constant.EXIT.equals(command)) {
-				// 退出命令
-				FileController.writeDataToFile();
-				return;
-			} else if (Constant.HELP.equals(command)) {
+				break;
+			case Constant.HELP:
 				// 输出命令列表
 				Help.showLoginHelp();
-			} else {
+				break;
+			case Constant.EXIT:
+				// 退出命令
+
+				state = this.EXIT;
+				break;
+
+			default:
 				// 未识别命令
 				System.out.println(command + " not found!");
+				break;
 			}
+			if (state != INIT)
+				break;
+
 		} while (true);
+
+		return state;
 	}
 
 	public void fileOper() {
+		int state = INIT;
 		String command = "";
 		Help.showFileHelp();
 		do {
@@ -82,36 +97,69 @@ public class Main {
 
 			command = getCommandP();
 			String[] pas = command.split(" ");
-			if (Constant.CREATE.equals(pas[0])) {
-				// 创建文件
+			switch (pas[0].toLowerCase()) {
+			case Constant.CREATE:
+				System.out.println(command);
 				if (!StringUtils.isNull(pas[1])) {
 					// 新建文件
 					FileManager.createFile(getPath() + pas[1]);
 				}
-
-			} else if (Constant.OPEN.equals(pas[0])) {
+				break;
+			case Constant.OPEN:
 				// 打开文件
-
-			} else if (Constant.LS.equals(pas[0])) {
+				System.out.println(command);
+				
+				break;
+			case Constant.LS:
 				// 查看当前目录下的文件文件信息
+				System.out.println(command);
 				FileManager.listFile(getPath());
 
-			} else if (Constant.MAKEDIR.equals(pas[0])) {
+				break;
+			case Constant.MAKEDIR:
 				// 创建目录
+				System.out.println(command);
 				if (!StringUtils.isNull(pas[1])) {
 					// 新建文件
 					FileManager.makeDir(getPath() + pas[1] + "/");
 				}
-
-			} else if (Constant.CD.equals(pas[0])) {
+				break;
+			case Constant.CD:
+				// 进入目录
+				System.out.println(command);
 				if (!StringUtils.isNull(pas[1])) {
-					// 进入目录
+
+					if ("..".equals(pas[1])) {
+						// 返回上一级
+						if (dirs.size() > 1)
+							dirs.remove(dirs.size() - 1);
+					} else {
+						if (FileManager.cdDir(getPath() + pas[1] + "/") == FileManager.OK) {
+							// 将当前的目录加入到路径栈中
+							dirs.add(pas[1]);
+						} else {
+							// 目录不存在
+						}
+					}
 
 				}
-			} else if (Constant.HELP.equals(pas[0])) {
+				break;
+			case Constant.DELETE:
+				// 删除文件目录
+				break;
+			case Constant.HELP:
 				Help.showFileHelp();
+				break;
+			case Constant.EXIT:
+				state = FAILED;
+				break;
+			default:
+				break;
 			}
 
+			if (state != INIT) {
+				break;
+			}
 		} while (true);
 	}
 

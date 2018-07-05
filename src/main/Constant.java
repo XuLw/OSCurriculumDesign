@@ -18,7 +18,8 @@ public class Constant {
 	public static final String HELP = "help";
 	public static final String CONFIG = "config";
 	public static final String LS = "ls";
-	public static final String MAKEDIR = "makedir";
+	public static final String MAKEDIR = "mkdir";
 	public static final String CD = "cd";
 	public static final String EXIT = "exit";
+	public static final String DELETE = "delete";
 }

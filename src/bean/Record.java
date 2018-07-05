@@ -14,6 +14,9 @@ public class Record implements Serializable {
 
 	public Record() {
 		blockId = new int[Constant.FILE_MAX_BLOCK];
+		for (int i = 0; i < blockId.length; i++) {
+			blockId[i] = -1;
+		}
 	}
 
 	public String getId() {
