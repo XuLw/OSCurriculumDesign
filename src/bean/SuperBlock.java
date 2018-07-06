@@ -11,6 +11,7 @@ public class SuperBlock implements Serializable {
 	private ArrayList<User> users; // 用户
 	private int[] bitmap;// 位视图
 	private int indexOfEmptyBlock; // 当前可用的空闲块
+	private int numOfEmptyBlock; // 当前剩余空闲快
 	private ArrayList<Record> records;
 	private ArrayList<Block> blocks; // 所有的块
 
@@ -18,8 +19,16 @@ public class SuperBlock implements Serializable {
 		users = new ArrayList<>();
 		bitmap = new int[Constant.SYSTEM_SIZE];
 		records = new ArrayList<>();
-		blocks = new ArrayList<>(1024);
+		blocks = new ArrayList<>();
+		// 新建块
+		numOfEmptyBlock = Constant.SYSTEM_SIZE;
+		for (int i = 0; i < Constant.SYSTEM_SIZE; i++)
+			blocks.add(new Block());
 		indexOfEmptyBlock = 0; // 默认从第一个块开始放
+	}
+
+	public int getNumOfEmptyBlock() {
+		return this.numOfEmptyBlock;
 	}
 
 	// 添加用户
@@ -61,6 +70,11 @@ public class SuperBlock implements Serializable {
 		return true;
 	}
 
+	// 删除记录
+	public void removeRecord(Record r) {
+		this.records.remove(r);
+	}
+
 	// 查询记录
 	public ArrayList<String> getRecordsByPath(String path) {
 		ArrayList<String> files = new ArrayList<>();
@@ -88,11 +102,41 @@ public class SuperBlock implements Serializable {
 		for (int i = 0; i < ids.length; i++) {
 			if (ids[i] == -1) {
 				// 已经结束了
+				break;
 			} else {
+				// 将块置空
+				bitmap[ids[i]] = 0;
 				content.append(blocks.get(ids[i]).getContent());
 			}
 		}
 		return content.toString();
+	}
+
+	public Block getEmptyBlock() {
+		if (numOfEmptyBlock == 0)
+			return null;
+		int index = getEmptyId();
+		Block b = blocks.get(index);
+		b.setSize(index);
+		if (index == -1)
+			return null;
+		else
+			return b;
+	}
+
+	private int getEmptyId() {
+		if (indexOfEmptyBlock > 1023)
+			indexOfEmptyBlock = 0;
+		for (int i = indexOfEmptyBlock; i < 1023; i++) {
+			if (bitmap[i] == 0) {
+				// 是空
+				indexOfEmptyBlock++;
+				// 设置块已被占用标志
+				bitmap[i] = 1;
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public void printDetail() {
@@ -108,29 +152,14 @@ public class SuperBlock implements Serializable {
 		System.out.println("user");
 		System.out.println(allUser);
 		System.out.println("bitmap");
-		System.out.println(bitmap.toString());
+		for (int i = 1; i <= bitmap.length; i++) {
+			System.out.print(bitmap[i - 1] + " ");
+			if (i % 64 == 0)
+				System.out.println();
+		}
 		System.out.println("record: " + records.size());
 		System.out.println(allRecords);
 		System.out.println("--------------------");
-	}
-
-	public Block getEmptyBlock() {
-		Block b = null;
-		
-			return b;
-	}
-
-	private int getEmptyId() {
-		if (indexOfEmptyBlock > 1023)
-			indexOfEmptyBlock = 0;
-		for (int i = indexOfEmptyBlock; i < 1023; i++) {
-			if (bitmap[i] == 0) {
-				// 是空
-				indexOfEmptyBlock++;
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	public static void main(String[] args) {

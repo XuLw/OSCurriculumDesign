@@ -21,5 +21,6 @@ public class Constant {
 	public static final String MAKEDIR = "mkdir";
 	public static final String CD = "cd";
 	public static final String EXIT = "exit";
-	public static final String DELETE = "delete";
+	public static final String RMF = "rmf";
+	public static final String RMD = "rmd";
 }

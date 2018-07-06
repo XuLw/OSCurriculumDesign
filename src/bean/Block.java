@@ -22,7 +22,7 @@ public class Block implements Serializable {
 	}
 
 	public String getContent() {
-		return content;
+		return content.substring(0, Constant.BLOCK_SIZE - size);
 	}
 
 	public void setContent(String content) {

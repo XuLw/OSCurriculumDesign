@@ -99,7 +99,6 @@ public class Main {
 			String[] pas = command.split(" ");
 			switch (pas[0].toLowerCase()) {
 			case Constant.CREATE:
-				System.out.println(command);
 				if (!StringUtils.isNull(pas[1])) {
 					// 新建文件
 					FileManager.createFile(getPath() + pas[1]);
@@ -107,18 +106,17 @@ public class Main {
 				break;
 			case Constant.OPEN:
 				// 打开文件
-				System.out.println(command);
-				
+				if (!StringUtils.isNull(pas[1])) {
+					FileManager.openFile(getPath() + pas[1]);
+				}
 				break;
 			case Constant.LS:
 				// 查看当前目录下的文件文件信息
-				System.out.println(command);
 				FileManager.listFile(getPath());
 
 				break;
 			case Constant.MAKEDIR:
 				// 创建目录
-				System.out.println(command);
 				if (!StringUtils.isNull(pas[1])) {
 					// 新建文件
 					FileManager.makeDir(getPath() + pas[1] + "/");
@@ -126,7 +124,6 @@ public class Main {
 				break;
 			case Constant.CD:
 				// 进入目录
-				System.out.println(command);
 				if (!StringUtils.isNull(pas[1])) {
 
 					if ("..".equals(pas[1])) {
@@ -144,8 +141,15 @@ public class Main {
 
 				}
 				break;
-			case Constant.DELETE:
-				// 删除文件目录
+			case Constant.RMD:
+				// 删除目录
+				if (!StringUtils.isNull(pas[1])) {
+					// 新建文件
+					FileManager.removeDir(getPath() + pas[1] + "/");
+				}
+				break;
+			case Constant.RMF:
+				// 删除文件
 				break;
 			case Constant.HELP:
 				Help.showFileHelp();
