@@ -12,6 +12,8 @@ public class Constant {
 	// √¸¡Ó
 	public static final String LOGIN = "login";
 	public static final String REGISTER = "register";
+	public static final String END = "end";
+
 	public static final String LOGOUT = "logout";
 	public static final String CREATE = "create";
 	public static final String OPEN = "open";
@@ -20,7 +22,9 @@ public class Constant {
 	public static final String LS = "ls";
 	public static final String MAKEDIR = "mkdir";
 	public static final String CD = "cd";
-	public static final String EXIT = "exit";
 	public static final String RMF = "rmf";
 	public static final String RMD = "rmd";
+	public static final String RESET = "reset";
+
+	public static final String EXIT = "exit";
 }

@@ -7,4 +7,5 @@ public class StringUtils {
 		else
 			return false;
 	}
+	
 }

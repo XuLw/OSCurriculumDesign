@@ -5,6 +5,7 @@ import java.util.Scanner;
 import bean.Record;
 import bean.SuperBlock;
 import bean.User;
+import utils.ConsoleScanner;
 import utils.StringUtils;
 
 public class Login {
@@ -17,22 +18,24 @@ public class Login {
 	Scanner input;
 
 	public Login() {
-		input = new Scanner(System.in);
+		input = ConsoleScanner.getInput();
 		mUser = new User();
 	}
 
 	public int login() {
 		int state = this.INIT;
+		String temp = "";
 		do {
 			mUser = new User();
-			System.out.print("enter your name(Ctrl + Z to exit):  ");
-			if (!input.hasNext()) {
+			System.out.print("enter your name('end' to exit):  ");
+			temp = input.nextLine().trim();
+			if (temp.equals(Constant.END)) {
 				state = this.FAILED;
 				break;
 			}
 
 			// 输入账号
-			mUser.setName(input.nextLine().trim());
+			mUser.setName(temp);
 			if (FileController.getSuperBlock().hasUser(mUser.getName())) {
 				// 输入密码
 				System.out.print("enter your password:   ");
@@ -46,12 +49,13 @@ public class Login {
 					} else {
 						// 密码错误
 						System.out.println("the password is incorrect! (" + restTry + " last)");
-						System.out.print("enter your password again (Ctrl + Z to exit):   ");
-						if (!input.hasNext()) {
+						System.out.print("enter your password again('end' to exit):   ");
+						temp = input.nextLine().trim();
+						if (temp.equals(Constant.END)) {
 							state = this.FAILED;
 							break;
 						}
-						mUser.setPassword(input.nextLine().trim());
+						mUser.setPassword(temp);
 					}
 				} while (restTry > 0);
 			} else {
@@ -69,22 +73,22 @@ public class Login {
 		String name = "";
 		String password = "";
 		do {
-			System.out.print("enter your name (Ctrl + Z to exit):   ");
+			System.out.print("enter your name('end' to exit):   ");
 
+			name = input.nextLine().trim();
 			// 用户退出
-			if (!input.hasNext()) {
+			if (name.equals(Constant.END)) {
 				state = this.FAILED;
 				break;
 			}
 
-			name = input.nextLine().trim();
 			if (!FileController.getSuperBlock().hasUser(name)) {
 				// 该用户名未被使用 创建成功 添加根目录
 				Record root = new Record();
 				root.setId(name + "/");
 				FileController.getSuperBlock().addRecord(root);
 				state = this.OK;
-				
+
 				break;
 			}
 			System.out.println("the user already exists!");
@@ -94,14 +98,13 @@ public class Login {
 		// 用户输入了用户名
 		if (state == this.OK)
 			do {
-				System.out.print("enter your password (Ctrl + Z to exit):   ");
+				System.out.print("enter your password('end' to exit):   ");
 
-				if (!input.hasNext()) {
+				password = input.nextLine().trim();
+				if (password.equals(Constant.END)) {
 					state = this.FAILED;
 					break;
 				}
-
-				password = input.nextLine().trim();
 
 				if (StringUtils.isNull(password)) {
 					System.out.println("password can't be empty!");

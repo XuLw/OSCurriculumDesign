@@ -1,11 +1,12 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
-import bean.Block;
-import bean.SuperBlock;
 import bean.User;
+import utils.ConsoleScanner;
+import utils.Printer;
 import utils.StringUtils;
 
 public class Main {
@@ -22,7 +23,7 @@ public class Main {
 	ArrayList<String> dirs; // 路径
 
 	public Main() {
-		input = new Scanner(System.in);
+		input = ConsoleScanner.getInput();
 		dirs = new ArrayList<>();
 		currentLevel = 0;
 		FileController.readDataFromFile();
@@ -35,7 +36,6 @@ public class Main {
 
 	public int showLogin() {
 		int state = INIT;
-		Help.showLoginHelp();
 		String command = "";
 		do {
 			command = getCommand(); // 获取命令
@@ -46,7 +46,7 @@ public class Main {
 				if (mLogin.register() == Login.OK) {
 					// 注册成功
 					FileController.getSuperBlock().addUser(mLogin.getUser());// 将用户添加到用户表
-					System.out.println("注册成功！");
+					System.out.println("registered successfully！");
 				} else {
 					// 放弃注册
 
@@ -58,7 +58,7 @@ public class Main {
 					// 登录成功
 					currentUser = mLogin.getUser();
 					dirs.add(currentUser.getName());
-					System.out.println("登陆成功！");
+					System.out.println("login successfully！");
 					state = this.OK;
 				} else {
 					// 放弃登录
@@ -66,7 +66,7 @@ public class Main {
 				break;
 			case Constant.HELP:
 				// 输出命令列表
-				Help.showLoginHelp();
+				Printer.showLoginHelp();
 				break;
 			case Constant.EXIT:
 				// 退出命令
@@ -76,9 +76,10 @@ public class Main {
 
 			default:
 				// 未识别命令
-				System.out.println(command + " not found!");
+				System.out.println("'" + command + "' not found!");
 				break;
 			}
+
 			if (state != INIT)
 				break;
 
@@ -90,72 +91,123 @@ public class Main {
 	public void fileOper() {
 		int state = INIT;
 		String command = "";
-		Help.showFileHelp();
 		do {
-
-			FileController.getSuperBlock().printDetail();
-
-			command = getCommandP();
+			command = getCommandP(); // 获取命令
 			String[] pas = command.split(" ");
+
 			switch (pas[0].toLowerCase()) {
 			case Constant.CREATE:
 				if (!StringUtils.isNull(pas[1])) {
 					// 新建文件
-					FileManager.createFile(getPath() + pas[1]);
+					switch (FileManager.createFile(getPath() + pas[1])) {
+					case FileManager.NAME_CONFLICT:
+						System.out.println("file " + pas[1] + "exists!");
+						break;
+					case FileManager.OK:
+						System.out.println("created !");
+						break;
+					default:
+						System.out.println("create unknow !!");
+						break;
+					}
 				}
 				break;
 			case Constant.OPEN:
 				// 打开文件
 				if (!StringUtils.isNull(pas[1])) {
-					FileManager.openFile(getPath() + pas[1]);
+					switch (FileManager.openFile(getPath() + pas[1])) {
+					case FileManager.NOT_FOUND:
+						System.out.println("file not exists!");
+						break;
+					case FileManager.OK:
+						break;
+					default:
+						System.out.println("open unknow !!");
+						break;
+					}
 				}
 				break;
 			case Constant.LS:
 				// 查看当前目录下的文件文件信息
 				FileManager.listFile(getPath());
-
 				break;
 			case Constant.MAKEDIR:
 				// 创建目录
 				if (!StringUtils.isNull(pas[1])) {
 					// 新建文件
-					FileManager.makeDir(getPath() + pas[1] + "/");
+					switch (FileManager.makeDir(getPath() + pas[1] + "/")) {
+					case FileManager.NAME_CONFLICT:
+						System.out.println("dir " + pas[1] + "exists!");
+						break;
+					case FileManager.OK:
+						System.out.println("created !");
+						break;
+					default:
+						System.out.println("mkdir unknow !!");
+						break;
+					}
 				}
 				break;
 			case Constant.CD:
 				// 进入目录
 				if (!StringUtils.isNull(pas[1])) {
-
 					if ("..".equals(pas[1])) {
 						// 返回上一级
 						if (dirs.size() > 1)
 							dirs.remove(dirs.size() - 1);
 					} else {
-						if (FileManager.cdDir(getPath() + pas[1] + "/") == FileManager.OK) {
+						switch (FileManager.cdDir(getPath() + pas[1] + "/")) {
+						case FileManager.OK:
 							// 将当前的目录加入到路径栈中
-							dirs.add(pas[1]);
-						} else {
-							// 目录不存在
+							dirs.addAll(Arrays.asList(pas[1].split("/")));
+							break;
+						case FileManager.NOT_FOUND:
+							System.out.println("dir not exists!");
+							break;
+						default:
+							System.out.println("cd unknow !!");
+							break;
 						}
 					}
-
 				}
 				break;
 			case Constant.RMD:
 				// 删除目录
 				if (!StringUtils.isNull(pas[1])) {
-					// 新建文件
-					FileManager.removeDir(getPath() + pas[1] + "/");
+					switch (FileManager.removeDir(getPath() + pas[1] + "/")) {
+					case FileManager.NOT_FOUND:
+						System.out.println("dir not exists!");
+						break;
+					case FileManager.OK:
+						System.out.println("deleted!");
+						break;
+					default:
+						System.out.println("rmd unknow !!");
+						break;
+					}
 				}
 				break;
 			case Constant.RMF:
 				// 删除文件
+				if (!StringUtils.isNull(pas[1])) {
+					switch (FileManager.removeFile(getPath() + pas[1])) {
+					case FileManager.NOT_FOUND:
+						System.out.println("file not exists!");
+						break;
+					case FileManager.OK:
+						System.out.println("deleted!");
+						break;
+					default:
+						System.out.println("rmf unknow !!");
+						break;
+					}
+				}
 				break;
 			case Constant.HELP:
-				Help.showFileHelp();
+				Printer.showFileHelp();
 				break;
 			case Constant.EXIT:
-				state = FAILED;
+				state = EXIT;
 				break;
 			default:
 				break;
@@ -165,6 +217,7 @@ public class Main {
 				break;
 			}
 		} while (true);
+
 	}
 
 	public String getCommand() {

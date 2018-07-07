@@ -81,7 +81,7 @@ public class SuperBlock implements Serializable {
 		for (Record r : records) {
 			if (r.getId().indexOf(path) != -1) {
 				// 找到
-				files.add(r.getId().substring(path.length()));
+				files.add(r.getId());
 			}
 		}
 		return files;
@@ -112,6 +112,7 @@ public class SuperBlock implements Serializable {
 		return content.toString();
 	}
 
+	// 获取空闲快
 	public Block getEmptyBlock() {
 		if (numOfEmptyBlock == 0)
 			return null;
@@ -139,6 +140,17 @@ public class SuperBlock implements Serializable {
 		return -1;
 	}
 
+	// 将空闲块置为空闲状态
+	public boolean clearBlock(int[] bids) {
+		for (int i = 0; i < bids.length; i++) {
+			if (bids[i] == -1)
+				break;
+			bitmap[bids[i]] = 0;
+		}
+		return true;
+	}
+
+	// 状态输出
 	public void printDetail() {
 		String allUser = "";
 		for (User u : users) {
