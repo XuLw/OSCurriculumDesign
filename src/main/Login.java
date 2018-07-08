@@ -19,7 +19,6 @@ public class Login {
 
 	public Login() {
 		input = ConsoleScanner.getInput();
-		mUser = new User();
 	}
 
 	public int login() {
@@ -48,7 +47,7 @@ public class Login {
 						break;
 					} else {
 						// 密码错误
-						System.out.println("the password is incorrect! (" + restTry + " last)");
+						System.out.println("err: the password is incorrect! (" + restTry-- + " last)");
 						System.out.print("enter your password again('end' to exit):   ");
 						temp = input.nextLine().trim();
 						if (temp.equals(Constant.END)) {
@@ -60,7 +59,7 @@ public class Login {
 				} while (restTry > 0);
 			} else {
 				// 不存在该用户
-				System.out.println("username not exist!");
+				System.out.println("err: username not exist!");
 			}
 			if (state == this.OK || state == this.FAILED)
 				break;
@@ -74,7 +73,6 @@ public class Login {
 		String password = "";
 		do {
 			System.out.print("enter your name('end' to exit):   ");
-
 			name = input.nextLine().trim();
 			// 用户退出
 			if (name.equals(Constant.END)) {
@@ -88,14 +86,13 @@ public class Login {
 				root.setId(name + "/");
 				FileController.getSuperBlock().addRecord(root);
 				state = this.OK;
-
 				break;
 			}
-			System.out.println("the user already exists!");
+			System.out.println("err: the user already exists!");
 
 		} while (true);
 
-		// 用户输入了用户名
+		// 用户输入了正确用户名
 		if (state == this.OK)
 			do {
 				System.out.print("enter your password('end' to exit):   ");
@@ -107,8 +104,9 @@ public class Login {
 				}
 
 				if (StringUtils.isNull(password)) {
-					System.out.println("password can't be empty!");
+					System.out.println("err: password can't be empty!");
 				} else {
+					mUser = new User();
 					mUser.setName(name);
 					mUser.setPassword(password);
 					break;
@@ -123,9 +121,9 @@ public class Login {
 		return mUser;
 	}
 
-	public static void main(String[] args) {
-		SuperBlock sb = new SuperBlock();
-		sb.addUser(new User("xulw", "xulw"));
-		new Login().login();
-	}
+	// public static void main(String[] args) {
+	// SuperBlock sb = new SuperBlock();
+	// sb.addUser(new User("xulw", "xulw"));
+	// new Login().login();
+	// }
 }

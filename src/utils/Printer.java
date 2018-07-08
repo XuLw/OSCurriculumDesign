@@ -22,7 +22,9 @@ public class Printer {
 		System.out.println("mkdir   <dirname>");
 		System.out.println("rmd     <dirname>");
 		System.out.println("rmf     <filename");
+		System.out.println("logout");
 		System.out.println("ls");
+		System.out.println("config");
 		System.out.println("exit");
 		System.out.println("help to get this");
 		System.out.println("----------------------------");

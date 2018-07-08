@@ -19,19 +19,55 @@ public class Main {
 	Scanner input;
 	Login mLogin;
 	User currentUser;
-	int currentLevel;
 	ArrayList<String> dirs; // 路径
 
 	public Main() {
+
+		try {
+			System.out.print("w");
+			Thread.sleep(100);
+			System.out.print("e");
+			Thread.sleep(100);
+			System.out.print("l");
+			Thread.sleep(100);
+			System.out.print("c");
+			Thread.sleep(100);
+			System.out.print("o");
+			Thread.sleep(100);
+			System.out.print("m");
+			Thread.sleep(100);
+			System.out.print("e");
+			Thread.sleep(100);
+			System.out.println(" !\n");
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int state = INIT;
 		input = ConsoleScanner.getInput();
 		dirs = new ArrayList<>();
-		currentLevel = 0;
 		FileController.readDataFromFile();
-
 		mLogin = new Login();
-		if (showLogin() == this.OK)
-			fileOper();
+		do {
+			if ((state = showLogin()) == this.OK)
+				state = fileOper();
+			if (state == EXIT)
+				break;
+		} while (true);
 		FileController.writeDataToFile();
+
+		System.out.print("bye .");
+		try {
+			Thread.sleep(300);
+			System.out.print(" .");
+			Thread.sleep(300);
+			System.out.print(" .");
+			Thread.sleep(300);
+			System.out.print(" .");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public int showLogin() {
@@ -46,10 +82,9 @@ public class Main {
 				if (mLogin.register() == Login.OK) {
 					// 注册成功
 					FileController.getSuperBlock().addUser(mLogin.getUser());// 将用户添加到用户表
-					System.out.println("registered successfully！");
+					System.out.println("msg: registered successfully！");
 				} else {
 					// 放弃注册
-
 				}
 				break;
 			case Constant.LOGIN:
@@ -58,7 +93,7 @@ public class Main {
 					// 登录成功
 					currentUser = mLogin.getUser();
 					dirs.add(currentUser.getName());
-					System.out.println("login successfully！");
+					System.out.println("msg: login successfully！");
 					state = this.OK;
 				} else {
 					// 放弃登录
@@ -70,13 +105,21 @@ public class Main {
 				break;
 			case Constant.EXIT:
 				// 退出命令
-
 				state = this.EXIT;
 				break;
-
+			case Constant.FORMAT:
+				// 格式化
+				if (FileController.rootFormat() == FileController.OK)
+					System.out.println("msg: format successfully !");
+				break;
+			case Constant.ROOTCONFIG:
+				Printer.printSeparator();
+				FileController.getSuperBlock().printUsers();
+				Printer.printSeparator();
+				break;
 			default:
 				// 未识别命令
-				System.out.println("'" + command + "' not found!");
+				System.out.println("err: '" + command + "' not found!");
 				break;
 			}
 
@@ -88,43 +131,52 @@ public class Main {
 		return state;
 	}
 
-	public void fileOper() {
+	public int fileOper() {
 		int state = INIT;
 		String command = "";
+
 		do {
 			command = getCommandP(); // 获取命令
 			String[] pas = command.split(" ");
 
 			switch (pas[0].toLowerCase()) {
 			case Constant.CREATE:
-				if (!StringUtils.isNull(pas[1])) {
+				if (pas.length > 1 && !StringUtils.isNull(pas[1])) {
 					// 新建文件
 					switch (FileManager.createFile(getPath() + pas[1])) {
 					case FileManager.NAME_CONFLICT:
-						System.out.println("file " + pas[1] + "exists!");
+						System.out.println("err: file " + pas[1] + "exists!");
 						break;
 					case FileManager.OK:
-						System.out.println("created !");
+						System.out.println("msg: created !");
 						break;
 					default:
-						System.out.println("create unknow !!");
+						System.out.println("err: create unknow !!");
 						break;
 					}
+				} else {
+					Printer.printSeparator();
+					System.out.println("noti: create  <filename>");
+					Printer.printSeparator();
 				}
 				break;
 			case Constant.OPEN:
 				// 打开文件
-				if (!StringUtils.isNull(pas[1])) {
+				if (pas.length > 1 && !StringUtils.isNull(pas[1])) {
 					switch (FileManager.openFile(getPath() + pas[1])) {
 					case FileManager.NOT_FOUND:
-						System.out.println("file not exists!");
+						System.out.println("err: file not exists!");
 						break;
 					case FileManager.OK:
 						break;
 					default:
-						System.out.println("open unknow !!");
+						System.out.println("err: open unknow !!");
 						break;
 					}
+				} else {
+					Printer.printSeparator();
+					System.out.println("noti: open  <filename>");
+					Printer.printSeparator();
 				}
 				break;
 			case Constant.LS:
@@ -133,24 +185,28 @@ public class Main {
 				break;
 			case Constant.MAKEDIR:
 				// 创建目录
-				if (!StringUtils.isNull(pas[1])) {
+				if (pas.length > 1 && !StringUtils.isNull(pas[1])) {
 					// 新建文件
 					switch (FileManager.makeDir(getPath() + pas[1] + "/")) {
 					case FileManager.NAME_CONFLICT:
-						System.out.println("dir " + pas[1] + "exists!");
+						System.out.println("err: dir " + pas[1] + " exists!");
 						break;
 					case FileManager.OK:
-						System.out.println("created !");
+						System.out.println("msg: created !");
 						break;
 					default:
-						System.out.println("mkdir unknow !!");
+						System.out.println("err: mkdir unknow !!");
 						break;
 					}
+				} else {
+					Printer.printSeparator();
+					System.out.println("noti: mkdir  <dirname>");
+					Printer.printSeparator();
 				}
 				break;
 			case Constant.CD:
 				// 进入目录
-				if (!StringUtils.isNull(pas[1])) {
+				if (pas.length > 1 && !StringUtils.isNull(pas[1])) {
 					if ("..".equals(pas[1])) {
 						// 返回上一级
 						if (dirs.size() > 1)
@@ -162,54 +218,91 @@ public class Main {
 							dirs.addAll(Arrays.asList(pas[1].split("/")));
 							break;
 						case FileManager.NOT_FOUND:
-							System.out.println("dir not exists!");
+							System.out.println("err: dir not exists!");
 							break;
 						default:
-							System.out.println("cd unknow !!");
+							System.out.println("msg: cd unknow !!");
 							break;
 						}
 					}
+				} else {
+					Printer.printSeparator();
+					System.out.println("noti: cd  <dirname>");
+					Printer.printSeparator();
 				}
 				break;
 			case Constant.RMD:
 				// 删除目录
-				if (!StringUtils.isNull(pas[1])) {
+				if (pas.length > 1 && !StringUtils.isNull(pas[1])) {
 					switch (FileManager.removeDir(getPath() + pas[1] + "/")) {
 					case FileManager.NOT_FOUND:
-						System.out.println("dir not exists!");
+						System.out.println("err: dir not exists!");
 						break;
 					case FileManager.OK:
-						System.out.println("deleted!");
+						System.out.println("msg: deleted!");
 						break;
 					default:
-						System.out.println("rmd unknow !!");
+						System.out.println("err: rmd unknow !!");
 						break;
 					}
+				} else {
+					Printer.printSeparator();
+					System.out.println("noti: rmd  <dirname>");
+					Printer.printSeparator();
 				}
 				break;
 			case Constant.RMF:
 				// 删除文件
-				if (!StringUtils.isNull(pas[1])) {
+				if (pas.length > 1 && !StringUtils.isNull(pas[1])) {
 					switch (FileManager.removeFile(getPath() + pas[1])) {
 					case FileManager.NOT_FOUND:
-						System.out.println("file not exists!");
+						System.out.println("err: file not exists!");
 						break;
 					case FileManager.OK:
-						System.out.println("deleted!");
+						System.out.println("msg: deleted!");
 						break;
 					default:
-						System.out.println("rmf unknow !!");
+						System.out.println("err: rmf unknow !!");
 						break;
 					}
+				} else {
+					Printer.printSeparator();
+					System.out.println("noti: rmf  <filename>");
+					Printer.printSeparator();
 				}
+				break;
+			case Constant.LOGOUT:
+				FileController.writeDataToFile();// 先进行保存
+				dirs.clear();// 清除当前栈
+				state = OK;
+				break;
+			case Constant.CONFIG:
+				Printer.printSeparator();
+				FileController.getSuperBlock().printBitmap();
+				Printer.printSeparator();
 				break;
 			case Constant.HELP:
 				Printer.showFileHelp();
 				break;
+
 			case Constant.EXIT:
 				state = EXIT;
 				break;
+			case Constant.RESET:
+				// 删除当前用户 删除根目录
+				switch (FileManager.removeDir(dirs.get(0) + "/")) {
+				case FileManager.OK:
+					// 删除用户
+					FileController.getSuperBlock().removeUser(currentUser);
+					dirs.clear();
+					System.out.println("msg: deleted!");
+					break;
+				}
+				state = OK;
+				break;
 			default:
+				// 未识别命令
+				System.out.println("err: '" + command + "' not found!");
 				break;
 			}
 
@@ -217,6 +310,7 @@ public class Main {
 				break;
 			}
 		} while (true);
+		return state;
 
 	}
 
@@ -227,7 +321,7 @@ public class Main {
 			if (input.hasNext()) {
 				command = input.nextLine().trim();
 				if (StringUtils.isNull(command))
-					System.out.println("command can't be empty!");
+					System.out.println("err: command can't be empty!");
 				else
 					break;
 			}
@@ -242,7 +336,7 @@ public class Main {
 			if (input.hasNext()) {
 				command = input.nextLine().trim();
 				if (StringUtils.isNull(command))
-					System.out.println("command can't be empty!");
+					System.out.println("err: command can't be empty!");
 				else
 					break;
 			}
@@ -256,10 +350,6 @@ public class Main {
 			path += s + "/";
 		}
 		return path;
-	}
-
-	public static void main(String[] args) {
-		new Main();
 	}
 
 }

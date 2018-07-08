@@ -37,6 +37,13 @@ public class SuperBlock implements Serializable {
 		return true;
 	}
 
+	// É¾³ýÓÃ»§
+	public boolean removeUser(User user) {
+		if (this.users.indexOf(user) != -1)
+			this.users.remove(user);
+		return true;
+	}
+
 	public boolean hasUser(String name) {
 		for (User u : this.users) {
 			if (u.getName().equals(name)) {
@@ -174,7 +181,26 @@ public class SuperBlock implements Serializable {
 		System.out.println("--------------------");
 	}
 
-	public static void main(String[] args) {
-
+	public void printBitmap() {
+		System.out.println("bitmap");
+		for (int i = 1; i <= bitmap.length; i++) {
+			System.out.print(bitmap[i - 1] + " ");
+			if (i % 64 == 0)
+				System.out.println();
+		}
 	}
+
+	public void printUsers() {
+		if (users.size() > 0) {
+			for (User u : users) {
+				System.out.println(u.getName() + "   " + u.getPassword());
+			}
+		} else {
+			System.out.println("no user yet !");
+		}
+	}
+
+	// public static void main(String[] args) {
+	//
+	// }
 }

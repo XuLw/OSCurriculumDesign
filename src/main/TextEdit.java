@@ -2,6 +2,7 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import bean.Record;
+import utils.Printer;
 
 public class TextEdit extends JFrame implements ActionListener {
 
@@ -30,6 +32,7 @@ public class TextEdit extends JFrame implements ActionListener {
 		textArea.setAutoscrolls(true);
 		r = record;
 		textArea.setLayout(new BorderLayout());
+		textArea.setFont(new Font("Serif", 0, 20));
 		textArea.setText(FileController.getSuperBlock().getContentByBlockIds(r.getBlockId()));
 		JPanel panel = new JPanel();
 		panel.add(new JScrollPane(textArea));
@@ -50,31 +53,60 @@ public class TextEdit extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == save) {
-			if (textArea.getText().length() > Constant.BLOCK_SIZE * Constant.FILE_MAX_BLOCK) {
-				// 文本过长
-				JOptionPane.showMessageDialog(null, "超出字数 (" + textArea.getText().length() + "/"
-						+ Constant.BLOCK_SIZE * Constant.FILE_MAX_BLOCK + ")！");
-			} else {
-				if (FileManager.saveText(textArea.getText(), r.getId()) == FileManager.OK) {
-					// 保存成功
-					System.out.println();
-					System.out.println("--------------");
-					System.out.println(r.getId() + " save successfully!");
-					System.out.println("--------------");
-					this.dispose();
-				} else {
-					System.out.println("--------------");
-					System.out.println("out of free space!");
-					System.out.println("--------------");
-					this.dispose();
-				}
+		// if (arg0.getSource() == save) {
+		// if (textArea.getText().length() > Constant.BLOCK_SIZE *
+		// Constant.FILE_MAX_BLOCK) {
+		// // 文本过长
+		// JOptionPane.showMessageDialog(null, "超出字数 (" + textArea.getText().length() +
+		// "/"
+		// + Constant.BLOCK_SIZE * Constant.FILE_MAX_BLOCK + ")！");
+		// } else {
+		// if (FileManager.saveText(textArea.getText(), r.getId()) == FileManager.OK) {
+		// // 保存成功
+		// System.out.println();
+		// Printer.printSeparator();
+		// System.out.println(r.getId() + " save successfully!");
+		// Printer.printSeparator();
+		// System.out.println(">:");
+		// this.dispose();
+		// } else {
+		// Printer.printSeparator();
+		// System.out.println("out of free space!");
+		// Printer.printSeparator();
+		// System.out.println(">:");
+		// this.dispose();
+		// }
+		//
+		// }
+		// } else if (arg0.getSource() == exit) {
+		// // 退出
+		// FileController.getSuperBlock().addRecord(r);
+		// this.dispose();
+		// }
 
+		if (textArea.getText().length() > Constant.BLOCK_SIZE * Constant.FILE_MAX_BLOCK) {
+			// 文本过长
+			JOptionPane.showMessageDialog(null, "超出字数 (" + textArea.getText().length() + "/"
+					+ Constant.BLOCK_SIZE * Constant.FILE_MAX_BLOCK + ")！");
+		} else {
+			if (FileManager.saveText(textArea.getText(), r.getId()) == FileManager.OK) {
+				// 保存成功
+				System.out.println();
+				if (arg0.getSource() == save) {
+					Printer.printSeparator();
+					System.out.println(r.getId() + " save successfully!");
+					Printer.printSeparator();
+					System.out.println(">:");
+				}
+				this.dispose();
+			} else {
+				Printer.printSeparator();
+				System.out.println("out of free space!");
+				Printer.printSeparator();
+				System.out.println(">:");
+				this.dispose();
 			}
-		} else if (arg0.getSource() == exit) {
-			// 退出
-			FileController.getSuperBlock().addRecord(r);
-			this.dispose();
+
 		}
 	}
 

@@ -7,12 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 
-import bean.Block;
 import bean.SuperBlock;
 
 public class FileController {
+
+	public static final int INIT = 11;
+	public static final int OK = 22;
+	public static final int FAIILED = 33;
 
 	private static SuperBlock mSuperBlock;
 
@@ -29,7 +31,11 @@ public class FileController {
 			fis.close();
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			try {
+				file.createNewFile();
+			} catch (IOException ee) {
+				ee.printStackTrace();
+			}
 		} catch (IOException e) {
 			// 第一次运行，并无相应的配置信息
 			init();
@@ -55,7 +61,7 @@ public class FileController {
 	}
 
 	// 第一次运行的初始化
-	public static void init() {
+	private static void init() {
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -70,11 +76,24 @@ public class FileController {
 		}
 	}
 
+	public static int rootFormat() {
+		int state = INIT;
+		if (file.exists() && file.isFile())
+			file.delete();
+		if (!file.exists())
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		init();
+		state = OK;
+		return state;
+	}
+
 	public static SuperBlock getSuperBlock() {
 		return mSuperBlock;
 	}
-
-
 
 	public static void main(String[] args) {
 		new FileController();

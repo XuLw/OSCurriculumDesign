@@ -86,17 +86,19 @@ public class FileManager {
 		}
 		// 输出
 		Printer.printSeparator();
+		if (fs.size() + ds.size() == 0)
+			System.out.println("no content here !");
 		for (String f : fs) {
 			System.out.printf("%-10s<f>\n", f);
 		}
 		for (String d : ds) {
 			System.out.printf("%-10s<d>\n", d);
 		}
+		Printer.printSeparator();
 	}
 
 	// 进入或者退出目录
 	public static int cdDir(String path) {
-		System.out.println(path);
 		int state = INIT;
 		// 判断是不是目录文件
 		if (FileController.getSuperBlock().fileExists(path)) {
@@ -163,7 +165,7 @@ public class FileManager {
 			break;
 		default:
 			// 目录下还有东西
-			System.out.println("delete all files in this directoy? (y to confirm)");
+			System.out.println("warnning: delete all files in this directoy(user)? (y to confirm)");
 			String command = ConsoleScanner.getInput().nextLine().trim().toLowerCase();
 			if (!StringUtils.isNull(command) && command.charAt(0) == 'y') {
 				// 确认命令
@@ -174,7 +176,6 @@ public class FileManager {
 					else
 						// 是文件
 						removeFile(record);
-
 				}
 			}
 			state = OK;
